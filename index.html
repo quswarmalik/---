@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087443"><title>Malik Pakistan v2</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f7f5;font-family:Arial,sans-serif;color:#17221c}
+header{position:sticky;top:0;z-index:5;background:#087443;color:#fff;padding:12px 15px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:800}.pill{background:#fff2a8;color:#4c4000;padding:7px 11px;border-radius:18px;font-weight:bold}
+main{max-width:650px;margin:auto;padding:12px 12px 78px}.card{background:#fff;border-radius:17px;padding:14px;margin:10px 0;box-shadow:0 2px 12px #0001}
+.avatar{width:50px;height:50px;border-radius:50%;background:#087443;color:white;display:grid;place-items:center;font-weight:bold}
+.row{display:flex;gap:11px;align-items:center}.muted{color:#728079;font-size:13px}
+textarea,input{width:100%;border:1px solid #dce4df;border-radius:12px;padding:11px;font-size:15px;margin:6px 0}
+.btn{border:0;border-radius:11px;padding:10px 14px;background:#087443;color:white;font-weight:bold}
+.secondary{background:#eef3f0;color:#234}.actions{display:flex;gap:6px;margin-top:9px}.actions button{flex:1;border:0;border-radius:10px;padding:9px;background:#eef3f0}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:8px;z-index:10}
+nav button{border:0;background:none;color:#4f5a55}nav b{display:block;font-size:20px}.hide{display:none}
+.postpic{width:100%;max-height:380px;object-fit:cover;border-radius:13px;margin-top:9px}
+.storyrow{display:flex;gap:10px;overflow:auto}.story{min-width:65px;text-align:center}.story .avatar{border:3px solid #16a56c}
+.chat{height:360px;overflow:auto;background:#f7faf8;border-radius:12px;padding:10px}.msg{padding:9px 12px;border-radius:14px;margin:6px 0;max-width:78%;background:#e4eee9}.me{margin-right:auto;background:#087443;color:#fff}
+</style></head>
+<body>
+<header><div class="logo">🇵🇰 Malik Pakistan</div><div class="pill">🪙 <span id="coins">100</span></div></header>
+<main>
+<section id="home">
+<div class="card"><div class="storyrow" id="stories"></div></div>
+<div class="card">
+<div class="row"><div class="avatar">MQ</div><div><b id="who">Malik Quswar</b><div class="muted">نئی پوسٹ بنائیں</div></div></div>
+<textarea id="postText" rows="3" placeholder="آپ کے ذہن میں کیا ہے؟"></textarea>
+<input id="photo" type="file" accept="image/*">
+<button class="btn" onclick="post()">پوسٹ کریں</button>
+</div>
+<div id="feed"></div>
+</section>
+
+<section id="profile" class="hide">
+<div class="card"><div class="row"><div class="avatar">MQ</div><div><h2 id="profileName">Malik Quswar</h2><div class="muted">Malik Pakistan Creator 🇵🇰</div></div></div>
+<hr><p>Followers <b>0</b> · Posts <b id="pc">0</b></p>
+<button class="btn" onclick="coinsAdd()">🪙 روزانہ +10 Coins</button></div>
+</section>
+
+<section id="chat" class="hide">
+<div class="card"><h2>💬 Malik Chat</h2>
+<div class="chat" id="chatbox"><div class="msg">السلام علیکم! Malik Pakistan Chat میں خوش آمدید 🇵🇰</div></div>
+<input id="msg" placeholder="پیغام لکھیں..."><button class="btn" onclick="send()">Send</button></div>
+</section>
+
+<section id="account" class="hide">
+<div class="card"><h2>👤 Account</h2>
+<input id="name" placeholder="اپنا نام">
+<input id="bio" placeholder="اپنا Bio">
+<button class="btn" onclick="saveAccount()">Save Profile</button>
+</div>
+</section>
+</main>
+<nav>
+<button onclick="show('home')"><b>🏠</b>Home</button>
+<button onclick="show('chat')"><b>💬</b>Chat</button>
+<button onclick="show('profile')"><b>👤</b>Profile</button>
+<button onclick="show('account')"><b>⚙️</b>Account</button>
+</nav>
+<script>
+let coins=+(localStorage.mqcoins||100), posts=JSON.parse(localStorage.mqposts||'[]');
+let user=JSON.parse(localStorage.mquser||'{"name":"Malik Quswar","bio":"Malik Pakistan Creator"}');
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function render(){
+ document.querySelectorAll('#coins').forEach(x=>x.textContent=coins);
+ who.textContent=user.name;profileName.textContent=user.name;pc.textContent=posts.length;
+ feed.innerHTML='';
+ [...posts].reverse().forEach((p,i)=>{let d=document.createElement('div');d.className='card';
+ d.innerHTML=`<div class="row"><div class="avatar">🇵🇰</div><div><b>${esc(p.name)}</b><div class="muted">ابھی ابھی</div></div></div><p>${esc(p.text||'')}</p>${p.img?`<img class="postpic" src="${p.img}">`:''}<div class="actions"><button onclick="this.textContent='❤️ '+(+(this.dataset.n||0)+1);this.dataset.n=+(this.dataset.n||0)+1">❤️ Like</button><button onclick="alert('کمنٹ فیچر محفوظ کیا گیا')">💬 Comment</button><button onclick="navigator.share?navigator.share({title:'Malik Pakistan',text:p.text}):alert('Share دستیاب نہیں')">↗ Share</button></div>`;feed.appendChild(d)})
+}
+function post(){let t=postText.value.trim(), f=photo.files[0];if(!t&&!f)return;
+ if(f){let r=new FileReader();r.onload=()=>savePost(t,r.result);r.readAsDataURL(f)}else savePost(t,'')}
+function savePost(t,img){posts.push({name:user.name,text:t,img});localStorage.mqposts=JSON.stringify(posts);postText.value='';photo.value='';render();alert('✅ پوسٹ ہو گئی')}
+function coinsAdd(){coins+=10;localStorage.mqcoins=coins;render();alert('🎉 10 Coins مل گئے')}
+function send(){let t=msg.value.trim();if(!t)return;chatbox.innerHTML+=`<div class="msg me">${esc(t)}</div><div class="msg">آپ کا پیغام موصول ہوگیا ❤️</div>`;msg.value='';chatbox.scrollTop=chatbox.scrollHeight}
+function saveAccount(){user.name=name.value.trim()||user.name;user.bio=bio.value.trim();localStorage.mquser=JSON.stringify(user);render();alert('پروفائل محفوظ ہوگیا')}
+function show(id){['home','profile','chat','account'].forEach(x=>document.getElementById(x).classList.toggle('hide',x!==id));render()}
+stories.innerHTML=['آپ','Malik','Friend','Pakistan','MQ'].map(x=>`<div class="story"><div class="avatar">🇵🇰</div><small>${x}</small></div>`).join('');
+name.value=user.name;bio.value=user.bio;render();
+</script></body></html>
